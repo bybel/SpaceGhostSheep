@@ -24,14 +24,17 @@ public class GhostSheepBehavior : AgentBehaviour
     private float dis2;
     private float timer;
     private bool isSheep;
+    private float switchTime;
 
     public void Start() {
         timer = 0;
         isSheep = true;
+        switchTime = Random.Range(10.0f,14.0f);
     }
 
     public override Steering GetSteering()
     {
+
         locatePlayers();
 
         timer += Time.deltaTime;
@@ -39,15 +42,18 @@ public class GhostSheepBehavior : AgentBehaviour
         if (isSheep)
         {
             sheep();
+            agent.SetVisualEffect(VisualEffect.VisualEffectConstAll, Color.green, 0);
         }else
         {
             wolf();
+            agent.SetVisualEffect(VisualEffect.VisualEffectConstAll, Color.red, 0);
         }
 
-        if(timer > Random.Range(10.0f,14.0f)) 
+        if(timer > switchTime) 
         {
             isSheep = !isSheep;
             timer = 0;
+            switchTime = Random.Range(10.0f,14.0f);
         }
 
         return steering;
@@ -61,7 +67,7 @@ public class GhostSheepBehavior : AgentBehaviour
         }
         return f;
     }
-
+ 
     private void locatePlayers()
     {
         steering = new Steering();
@@ -147,7 +153,6 @@ public class GhostSheepBehavior : AgentBehaviour
 
             closest.Normalize();
         }
-
         steering.linear = -closest * agent.maxAccel;
         steering.linear = transform.parent.TransformDirection(Vector3.ClampMagnitude(steering.linear, agent.maxAccel));
     }
