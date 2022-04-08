@@ -18,14 +18,14 @@ public class ScoreDisplay : MonoBehaviour
         s1 = GameObject.FindGameObjectsWithTag("score1")[0];
         s2 = GameObject.FindGameObjectsWithTag("score2")[0];
 
-        //score1Script = p1.GetComponent<PlayerScore>();
-        //score2Script = p2.GetComponent<PlayerScore>();
+        score1Script = p1.GetComponent<PlayerScore>();
+        score2Script = p2.GetComponent<PlayerScore>();
     }
 
     // Update is called once per frame
     void Update()
     {
-        //s1.GetComponent<TextMeshPro>().text = "P1 : " + score1Script.getScore();
-        //s2.GetComponent<TextMeshPro>().text = "P2 : " + score2Script.getScore();
+        s1.GetComponent<TMPro.TextMeshProUGUI>().text = "P1 : " + score1Script.getScore();
+        s2.GetComponent<TMPro.TextMeshProUGUI>().text = "P2 : " + score2Script.getScore();
     }
 }
