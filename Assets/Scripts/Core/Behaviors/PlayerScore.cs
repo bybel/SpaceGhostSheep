@@ -26,4 +26,8 @@ public class PlayerScore : MonoBehaviour
     {
         score--;
     }
+
+    public int getScore() {
+        return score;
+    }
 }
