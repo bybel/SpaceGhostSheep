@@ -5,14 +5,10 @@ public class GhostSheepBehavior : AgentBehaviour
 {
 
     public float minDistance = 27.0f;
-    public float par = 3f;
+    public float par = 2.5f;
     public float eps = 0.00001f;
-    public float xmin = 287.8f;
-    public float zmin = -19.7f;
-    public float xmid = 301.2f;
-    public float zmid = -10.5f;
-    public float xmax = 313f;
-    public float zmax = -2.84f;
+    public AudioSource wolfSound;
+    public AudioSource sheepSound;
 
     private Steering steering;
     private Vector3 position;
@@ -25,11 +21,18 @@ public class GhostSheepBehavior : AgentBehaviour
     private float timer;
     private bool isSheep;
     private float switchTime;
+    private float xmin;
+    private float zmin;
+    private float xmid;
+    private float zmid;
+    private float xmax;
+    private float zmax;
 
     public void Start() {
         timer = 0;
         isSheep = true;
         switchTime = Random.Range(10.0f,14.0f);
+        locateBorders();
     }
 
     public override Steering GetSteering()
@@ -54,6 +57,7 @@ public class GhostSheepBehavior : AgentBehaviour
             isSheep = !isSheep;
             timer = 0;
             switchTime = Random.Range(10.0f,14.0f);
+            AudioSource.PlayClipAtPoint(isSheep ? sheepSound.clip : wolfSound.clip, transform.position);
         }
 
         return steering;
@@ -67,7 +71,7 @@ public class GhostSheepBehavior : AgentBehaviour
         }
         return f;
     }
- 
+
     private void locatePlayers()
     {
         steering = new Steering();
@@ -76,6 +80,10 @@ public class GhostSheepBehavior : AgentBehaviour
         GameObject[] p2;
         p1 = GameObject.FindGameObjectsWithTag("Player1");
         p2 = GameObject.FindGameObjectsWithTag("Player2");
+        
+        Vector3 pinard = p1[0].transform.position;
+        Debug.Log("(" + pinard.x + ", " + pinard.z + ")");
+        Debug.Log("xmin = " + xmin + "xmax = " + xmax + "zmin = " + zmin + "zmax = " + zmax);
 
         position = transform.position;
         pos1 = p1[0].transform.position - position;
@@ -93,6 +101,25 @@ public class GhostSheepBehavior : AgentBehaviour
         }
     }
 
+    private void locateBorders(){
+        GameObject[] left;
+        GameObject[] right;
+        GameObject[] up;
+        GameObject[] down;
+        GameObject[] mid;
+        left = GameObject.FindGameObjectsWithTag("xmin");
+        right = GameObject.FindGameObjectsWithTag("xmax");
+        down = GameObject.FindGameObjectsWithTag("zmin");
+        up = GameObject.FindGameObjectsWithTag("zmax");
+        mid = GameObject.FindGameObjectsWithTag("mid");
+
+        xmin = left[0].transform.position.x;
+        xmax = right[0].transform.position.x;
+        zmin = down[0].transform.position.z;
+        zmax = up[0].transform.position.z;
+        xmid = mid[0].transform.position.x;
+        zmid = mid[0].transform.position.z;
+    }
     private void sheep()
     {
         if (closest.sqrMagnitude > minDistance)
@@ -127,7 +154,7 @@ public class GhostSheepBehavior : AgentBehaviour
             }
             else
             {
-                if (position.x >= xmax || position.x <= xmin)
+                if (position.x >= xmax - par || position.x <= xmin + par)
                 {
                     if (closest.z < 0)
                     {
@@ -138,7 +165,7 @@ public class GhostSheepBehavior : AgentBehaviour
                         closest = new Vector3(0, 0, 1);
                     }
                 }
-                else if (position.z >= zmax || position.z <= zmin)
+                else if (position.z >= zmax - par || position.z <= zmin + par)
                 {
                     if (closest.x < 0)
                     {
@@ -153,6 +180,7 @@ public class GhostSheepBehavior : AgentBehaviour
 
             closest.Normalize();
         }
+
         steering.linear = -closest * agent.maxAccel;
         steering.linear = transform.parent.TransformDirection(Vector3.ClampMagnitude(steering.linear, agent.maxAccel));
     }
@@ -179,7 +207,9 @@ public class GhostSheepBehavior : AgentBehaviour
 
     public void incrementScore()
     {
-        PlayerScore scoreScript = closestPlayer.GetComponent<PlayerScore>();
-        scoreScript.incrementScore();
+        if(isSheep){
+            PlayerScore scoreScript = closestPlayer.GetComponent<PlayerScore>();
+            scoreScript.incrementScore();
+        }
     }
 }

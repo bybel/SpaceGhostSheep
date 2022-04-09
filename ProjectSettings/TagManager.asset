@@ -9,6 +9,8 @@ TagManager:
   - Sheep
   - score1
   - score2
+  - winner
+  - GameMechanics
   layers:
   - Default
   - TransparentFX
